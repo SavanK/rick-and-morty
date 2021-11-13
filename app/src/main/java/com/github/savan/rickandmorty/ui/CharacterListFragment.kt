@@ -48,6 +48,7 @@ class CharacterListFragment: Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             rickAndMortyViewModel?.getCharacterList()?.observe(viewLifecycleOwner, {
+                // Received characters page. Update recycler view
                 characterAdapter.submitData(lifecycle, it)
             })
         }

@@ -27,7 +27,9 @@ class MainActivity : AppCompatActivity() {
         val rickAndMortyApplication = application as RickAndMortyApplication
         val rickAndMortyViewModel = ViewModelProvider(this,
             rickAndMortyApplication.getViewModelFactory()).get(RickAndMortyViewModel::class.java)
+
         rickAndMortyViewModel.getSelectedCharacter().observe(this, {
+            // User tapped on a particular cahracter for detailed inforamtion
             supportFragmentManager.beginTransaction().apply {
                 add(R.id.fragment_container_view, CharacterDetailFragment(it))
                 addToBackStack("character_detail")
@@ -35,6 +37,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
+        // Load the character list fragment
         supportFragmentManager.beginTransaction().apply {
             add(R.id.fragment_container_view, CharacterListFragment())
             commit()

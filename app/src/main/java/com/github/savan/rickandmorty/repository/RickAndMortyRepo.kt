@@ -16,8 +16,6 @@ class RickAndMortyRepo(private val remoteServiceFactory: IServiceFactory): IRick
         private const val BASE_URL = "https://rickandmortyapi.com/api/"
         private const val LOCATION_CACHE_SIZE = 100
         private const val CHARACTER_PAGE_CACHE_SIZE = 20
-
-        private const val BACKOFF_TIME = 3000
     }
 
     private val locationsLock = ReentrantLock()
@@ -40,6 +38,7 @@ class RickAndMortyRepo(private val remoteServiceFactory: IServiceFactory): IRick
             RickAndMortyWebService::class.java) as RickAndMortyWebService
         val location = rickAndMortyService.getLocation(locationId).await()
         locationsLock.withLock {
+            // add to cache
             locationsCache.put(locationId, location)
         }
 
@@ -58,8 +57,8 @@ class RickAndMortyRepo(private val remoteServiceFactory: IServiceFactory): IRick
         val rickAndMortyService = remoteServiceFactory.getRemoteService(BASE_URL,
             RickAndMortyWebService::class.java) as RickAndMortyWebService
         val characterPage = rickAndMortyService.getCharactersForPage(page).await()
-
         characterPagesLock.withLock {
+            // add to cache
             characterPagesCache.put(page, characterPage)
         }
 

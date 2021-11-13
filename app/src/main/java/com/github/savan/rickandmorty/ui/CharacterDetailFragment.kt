@@ -14,6 +14,7 @@ import com.github.savan.rickandmorty.RickAndMortyApplication
 import com.github.savan.rickandmorty.repository.data.Character
 import com.github.savan.rickandmorty.viewmodel.RickAndMortyViewModel
 import com.squareup.picasso.Picasso
+import java.lang.Exception
 
 class CharacterDetailFragment(private val character: Character): Fragment() {
     companion object {
@@ -48,20 +49,33 @@ class CharacterDetailFragment(private val character: Character): Fragment() {
         rickAndMortyViewModel = ViewModelProvider(requireActivity(),
             rickAndMortyApplication.getViewModelFactory()).get(RickAndMortyViewModel::class.java)
 
-        rickAndMortyViewModel?.getLocation(getLocationId())?.observe(viewLifecycleOwner, {
-            locationName.text = getString(R.string.location_name, it.name)
-            locationType.text = getString(R.string.location_type, it.type)
-            locationDimen.text = getString(R.string.location_dimen, it.dimension)
-            locationPopulation.text = getString(R.string.location_residents, it.residents.size)
-        })
+        // clear prev values
+        locationName.text = ""
+        locationType.text = ""
+        locationDimen.text = ""
+        locationPopulation.text = ""
+
+        getCharacterLocationId()?.let { locationId ->
+            rickAndMortyViewModel?.getLocation(locationId)?.observe(viewLifecycleOwner, {
+                // Received location information. Update views
+                locationName.text = getString(R.string.location_name, it.name)
+                locationType.text = getString(R.string.location_type, it.type)
+                locationDimen.text = getString(R.string.location_dimen, it.dimension)
+                locationPopulation.text = getString(R.string.location_residents, it.residents.size)
+            })
+        }
 
         // Added to consume touch events when this fragment is visible,
         // or else it travels along backstack to the list fragment beneath
         view.setOnTouchListener { _, _ -> true }
     }
 
-    private fun getLocationId(): Int {
-        val parts = character.location.url.split("/")
-        return parts[parts.size-1].toInt()
+    private fun getCharacterLocationId(): Int? {
+        return try {
+            val parts = character.location.url.split("/")
+            parts[parts.size - 1].toInt()
+        } catch (e: Exception){
+            null
+        }
     }
 }

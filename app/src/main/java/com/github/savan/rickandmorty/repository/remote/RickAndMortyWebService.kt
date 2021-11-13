@@ -7,6 +7,9 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
 
+/**
+ * Retrofit service end point for Rick and Morty REST API
+ */
 interface RickAndMortyWebService {
     companion object {
         private const val KEY_PAGE = "page"

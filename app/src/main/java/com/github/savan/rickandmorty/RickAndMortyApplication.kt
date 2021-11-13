@@ -13,6 +13,8 @@ class RickAndMortyApplication: Application() {
     override fun onCreate() {
         super.onCreate()
 
+        // Rick and Morty repository is tied to application lifecycle. This ensures the data cached
+        // in the repository lives on even after the Activity's ViewModel is destroyed.
         rickAndMortyRepo = RickAndMortyRepo(ServiceFactory())
         viewModelFactory = ViewModelFactory(rickAndMortyRepo)
     }

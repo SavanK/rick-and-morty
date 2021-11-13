@@ -12,21 +12,34 @@ import com.github.savan.rickandmorty.repository.data.Location
 import kotlinx.coroutines.launch
 import java.lang.Exception
 
+/**
+ * ViewModel to manage Rick and Morty characters and location data. Is used with Activity lifecycle
+ */
 class RickAndMortyViewModel(private val rickAndMortyRepo: IRickAndMortyRepo): ViewModel() {
     companion object {
         private const val TAG = "RickAndMortyViewModel"
     }
 
+    // Indicates the character that the user clicked for detailed information
     private val selectedCharacter: MutableLiveData<Character> = MutableLiveData()
 
+    /**
+     * Get live data for user selected character for detailed information
+     */
     fun getSelectedCharacter(): LiveData<Character> {
         return selectedCharacter
     }
 
+    /**
+     * Set user selected character
+     */
     fun setSelectedCharacter(character: Character) {
         selectedCharacter.value = character
     }
 
+    /**
+     * Get all characters. Results are paged
+     */
     fun getCharacterList(): LiveData<PagingData<Character>> {
         return Pager(PagingConfig(pageSize = 20, enablePlaceholders = false),
             pagingSourceFactory = {
@@ -34,6 +47,9 @@ class RickAndMortyViewModel(private val rickAndMortyRepo: IRickAndMortyRepo): Vi
             }).liveData
     }
 
+    /**
+     * Get location for specified location id
+     */
     fun getLocation(locationId: Int): LiveData<Location> {
         val location: MutableLiveData<Location> = MutableLiveData()
         viewModelScope.launch {
@@ -43,7 +59,11 @@ class RickAndMortyViewModel(private val rickAndMortyRepo: IRickAndMortyRepo): Vi
         return location
     }
 
-    class CharacterPagingSource(private val rickAndMortyRepo: IRickAndMortyRepo):
+    /**
+     * Characters paging source that loads a single page of characters on demand as requested
+     * by the Recycler View adapter
+     */
+    private class CharacterPagingSource(private val rickAndMortyRepo: IRickAndMortyRepo):
         PagingSource<Int, Character>() {
         override fun getRefreshKey(state: PagingState<Int, Character>): Int? {
             return state.anchorPosition?.let { anchorPosition ->
