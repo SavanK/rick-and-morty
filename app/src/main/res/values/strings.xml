@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">RickAndMorty</string>
+    <string name="location">Location</string>
+    <string name="character">Character</string>
+    <string name="location_name">Name: %1$s</string>
+    <string name="location_type">Type: %1$s</string>
+    <string name="location_dimen">Dimension: %1$s</string>
+    <string name="location_residents">Residents: %1$d</string>
+</resources>
