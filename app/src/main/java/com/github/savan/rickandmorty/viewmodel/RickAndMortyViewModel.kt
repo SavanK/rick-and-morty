@@ -23,6 +23,12 @@ class RickAndMortyViewModel(private val rickAndMortyRepo: IRickAndMortyRepo): Vi
     // Indicates the character that the user clicked for detailed information
     private val selectedCharacter: MutableLiveData<Character> = MutableLiveData()
 
+    private var queryCharacterName: String = ""
+
+    fun setQueryCharacterName(name: String) {
+        queryCharacterName = name
+    }
+
     /**
      * Get live data for user selected character for detailed information
      */
@@ -38,12 +44,12 @@ class RickAndMortyViewModel(private val rickAndMortyRepo: IRickAndMortyRepo): Vi
     }
 
     /**
-     * Get all characters. Results are paged
+     * Get all characters for matching query. Results are paged
      */
     fun getCharacterList(): LiveData<PagingData<Character>> {
         return Pager(PagingConfig(pageSize = 20, enablePlaceholders = false),
             pagingSourceFactory = {
-                CharacterPagingSource(rickAndMortyRepo)
+                CharacterPagingSource(rickAndMortyRepo, queryCharacterName)
             }).liveData
     }
 
@@ -63,7 +69,8 @@ class RickAndMortyViewModel(private val rickAndMortyRepo: IRickAndMortyRepo): Vi
      * Characters paging source that loads a single page of characters on demand as requested
      * by the Recycler View adapter
      */
-    private class CharacterPagingSource(private val rickAndMortyRepo: IRickAndMortyRepo):
+    private class CharacterPagingSource(private val rickAndMortyRepo: IRickAndMortyRepo,
+                                        private val characterName: String):
         PagingSource<Int, Character>() {
         override fun getRefreshKey(state: PagingState<Int, Character>): Int? {
             return state.anchorPosition?.let { anchorPosition ->
@@ -75,7 +82,7 @@ class RickAndMortyViewModel(private val rickAndMortyRepo: IRickAndMortyRepo): Vi
         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Character> {
             return try {
                 val nextPage = params.key ?: 1
-                val characterPage = rickAndMortyRepo.getCharactersForPage(nextPage)
+                val characterPage = rickAndMortyRepo.getCharactersForPage(nextPage, characterName)
                 characterPage?.let {
                     LoadResult.Page(
                         data = it.results,
@@ -89,9 +96,19 @@ class RickAndMortyViewModel(private val rickAndMortyRepo: IRickAndMortyRepo): Vi
         }
 
         private fun getNextPage(characterPage: CharacterPage): Int {
+            var pageNo = 0
             val nextPageUrl = characterPage.info.next
-            val parts = nextPageUrl.split("=")
-            return parts[1].toInt()
+            val parts = nextPageUrl.split("?")
+            val queryParams = parts[1].split("&")
+
+            for(param in queryParams) {
+                if(param.startsWith("page")) {
+                    val pageParts = param.split("=")
+                    pageNo = pageParts[1].toInt()
+                }
+            }
+
+            return pageNo
         }
     }
 

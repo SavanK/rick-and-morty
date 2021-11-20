@@ -13,11 +13,12 @@ import retrofit2.http.Query
 interface RickAndMortyWebService {
     companion object {
         private const val KEY_PAGE = "page"
+        private const val KEY_NAME = "name"
         private const val KEY_LOCATION_ID = "location_id"
     }
 
     @GET("character")
-    fun getCharactersForPage(@Query(KEY_PAGE) page: Int): Call<CharacterPage?>
+    fun getCharactersForPage(@Query(KEY_PAGE) page: Int, @Query(KEY_NAME) name: String): Call<CharacterPage?>
 
     @GET("location/{$KEY_LOCATION_ID}")
     fun getLocation(@Path(KEY_LOCATION_ID) locationId: Int): Call<Location?>

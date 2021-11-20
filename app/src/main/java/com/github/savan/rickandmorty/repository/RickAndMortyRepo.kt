@@ -45,22 +45,22 @@ class RickAndMortyRepo(private val remoteServiceFactory: IServiceFactory): IRick
         return location
     }
 
-    override suspend fun getCharactersForPage(page: Int): CharacterPage? {
+    override suspend fun getCharactersForPage(page: Int, name: String): CharacterPage? {
         // cache hit
-        characterPagesLock.withLock {
+        /*characterPagesLock.withLock {
             characterPagesCache[page]?.let {
                 return it
             }
-        }
+        }*/
 
         // cache miss
         val rickAndMortyService = remoteServiceFactory.getRemoteService(BASE_URL,
             RickAndMortyWebService::class.java) as RickAndMortyWebService
-        val characterPage = rickAndMortyService.getCharactersForPage(page).await()
-        characterPagesLock.withLock {
+        val characterPage = rickAndMortyService.getCharactersForPage(page, name).await()
+        /*characterPagesLock.withLock {
             // add to cache
             characterPagesCache.put(page, characterPage)
-        }
+        }*/
 
         return characterPage
     }

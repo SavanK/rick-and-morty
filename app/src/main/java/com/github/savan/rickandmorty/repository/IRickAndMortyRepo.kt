@@ -16,5 +16,5 @@ interface IRickAndMortyRepo {
     /**
      * Get characters for given page number. Blocks for response.
      */
-    suspend fun getCharactersForPage(page: Int): CharacterPage?
+    suspend fun getCharactersForPage(page: Int, name: String): CharacterPage?
 }
