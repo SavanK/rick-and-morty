@@ -22,8 +22,10 @@ class RickAndMortyRepo(private val remoteServiceFactory: IServiceFactory): IRick
     private val locationsCache: LruCache<Int, Location> = LruCache(LOCATION_CACHE_SIZE)
 
     private val characterPagesLock = ReentrantLock()
-    private val characterPagesCache: LruCache<Int, CharacterPage> = LruCache(
+    private val characterPagesCache: LruCache<CharacterPageKey, CharacterPage> = LruCache(
         CHARACTER_PAGE_CACHE_SIZE)
+
+    private data class CharacterPageKey(val characterName: String, val page: Int)
 
     override suspend fun getLocation(locationId: Int): Location? {
         // cache hit
@@ -46,21 +48,23 @@ class RickAndMortyRepo(private val remoteServiceFactory: IServiceFactory): IRick
     }
 
     override suspend fun getCharactersForPage(page: Int, name: String): CharacterPage? {
+        val characterPageKey = CharacterPageKey(name, page)
+
         // cache hit
-        /*characterPagesLock.withLock {
-            characterPagesCache[page]?.let {
+        characterPagesLock.withLock {
+            characterPagesCache[characterPageKey]?.let {
                 return it
             }
-        }*/
+        }
 
         // cache miss
         val rickAndMortyService = remoteServiceFactory.getRemoteService(BASE_URL,
             RickAndMortyWebService::class.java) as RickAndMortyWebService
         val characterPage = rickAndMortyService.getCharactersForPage(page, name).await()
-        /*characterPagesLock.withLock {
+        characterPagesLock.withLock {
             // add to cache
-            characterPagesCache.put(page, characterPage)
-        }*/
+            characterPagesCache.put(characterPageKey, characterPage)
+        }
 
         return characterPage
     }
